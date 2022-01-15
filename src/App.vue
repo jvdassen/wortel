@@ -1,25 +1,44 @@
 <template>
   <div id="app">
-    <h1>wortel 🥕</h1>
+    <h1>wortel <span v-for="index in remaining" :key="index">🥕</span></h1>
+
     <div class="guesses">
-      <div v-for="(guess, i) in guesses" v-bind:key="i" class="guess">
-        <div v-for="(letter, j) in guess" v-bind:key="j" class="word">
+      <div v-for="guess in guesses" :key="guess.id" class="guess">
+        <div v-for="letter in guess.guesses" v-bind:key="letter.id" class="word">
           <span v-if="letter.m === 'f'" class="letter full">{{letter.l}}</span>
           <span v-if="letter.m === 'p'" class="letter partial">{{letter.l}}</span>
           <span v-if="letter.m === 'n'" class="letter none">{{letter.l}}</span>
         </div>
       </div>
-      <div v-for="index in remaining" :key="index" class="guessplaceholder"></div>
+      <div v-for="index in (remaining + 1)" :key="index" class="guessplaceholder"></div>
     </div>
+    <div class="info">{{ info }}</div>
     <div class="input">
-      <input type="text" v-model="newguess">
-      <button>OK</button>
+      <input type="text" v-model="newguess" :disabled="remaining === 0 || won">
+      <button @click="check">OK</button>
     </div>
     <div class="fix">Für A. :-)</div>
   </div>
 </template>
 
 <script>
+import wordlist from './fuenfer.js'
+import wordlistExtended from './fuenfer-ext.js'
+const randomnr = Math.random() * 1e17
+const randomIndex = randomnr % wordlist.length
+const randomWord = wordlist[randomIndex]
+
+console.log(`Random word is ${randomWord}`)
+
+var checklist = wordlistExtended.concat(wordlist)
+
+//  const wordlist = [
+//    'helme',
+//    'tests',
+//    'angel',
+//    'angst',
+//    'nagst'
+//  ]
 
 export default {
   name: 'App',
@@ -28,14 +47,60 @@ export default {
     // Try: Angst
     return {
       guesses: [
-        [{ l: 'n', m: 'p' }, { l: 'a', m: 'p', id: '2' }, { l: 'c', m: 'n' }, { l: 'h', m: 'n' }, { l: 't', m: 'f' }],
-        [{ l: 'a', m: 'f' }, { l: 'n', m: 'f', id: '2' }, { l: 'e', m: 'n' }, { l: 'g', m: 'p' }, { l: 't', m: 'f' }],
-        [{ l: 'a', m: 'f' }, { l: 'n', m: 'f', id: '2' }, { l: 'g', m: 'f' }, { l: 'e', m: 'n' }, { l: 't', m: 'f' }]
+        // [{ l: 'n', m: 'p' }, { l: 'a', m: 'p', id: '2' }, { l: 'c', m: 'n' }, { l: 'h', m: 'n' }, { l: 't', m: 'f' }],
+        // [{ l: 'a', m: 'f' }, { l: 'n', m: 'f', id: '2' }, { l: 'e', m: 'n' }, { l: 'g', m: 'p' }, { l: 't', m: 'f' }],
+        // [{ l: 'a', m: 'f' }, { l: 'n', m: 'f', id: '2' }, { l: 'g', m: 'f' }, { l: 'e', m: 'n' }, { l: 't', m: 'f' }]
         //        [{ l: 'a', m: 'f' }, { l: 'n', m: 'f', id: '2' }, { l: 'g', m: 'f' }, { l: 'l', m: 'n' }, { l: 't', m: 'f' }]
         //        [{ l: 'a', m: 'f' }, { l: 'n', m: 'f', id: '2' }, { l: 'g', m: 'f' }, { l: 's', m: 'f' }, { l: 't', m: 'f' }]
       ],
-      solution: ['angst'],
-      newguess: ''
+      solution: randomWord,
+      newguess: '',
+      info: 'Versuch dein Glück',
+      won: false
+    }
+  },
+  methods: {
+    check: function check () {
+      this.info = ''
+      if (this.newguess.length < 5) {
+        this.info = 'Dein Wort ist zu kurz :-('
+        return
+      }
+      if (checklist.findIndex(w => w.toLowerCase() === this.newguess.toLowerCase()) < 0) {
+        this.info = 'Dein Wort ist leider nicht im Korpus'
+        return
+      }
+      var checkResult = {
+        id: Math.random() * 1e17,
+        guesses: this.newguess.toLowerCase().split('').map(checkWord.bind(this))
+      }
+      function checkWord (character, index) {
+        var result = {
+          l: character,
+          m: 'n',
+          id: '' + Math.random() * 1e17
+        }
+        var indexOf = this.solution.toLowerCase().indexOf(character)
+        window.app = this
+        var partialMatch = indexOf >= 0
+        if (partialMatch) {
+          result.m = 'p'
+        }
+        var solutionCharAtThisPosition = this.solution.toLowerCase()[index]
+        var fullMatch = solutionCharAtThisPosition === character
+        if (fullMatch) {
+          result.m = 'f'
+        }
+        return result
+      }
+      var won = checkResult.guesses.every(character => character.m === 'f')
+      if (won) {
+        this.info = 'Well done!🥕'
+        this.won = won
+      }
+
+      this.guesses.push(checkResult)
+      this.newguess = ''
     }
   },
   computed: {
@@ -140,5 +205,11 @@ html, body {
   position: fixed;
   bottom: 0px;
   font-size: 0.8em;
+}
+.info {
+  text-align: center;
+  font-size: 1.5em;
+  padding: 0.5em;
+  font-family: Helvetica;
 }
 </style>
