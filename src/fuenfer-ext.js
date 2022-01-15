@@ -1,4 +1,4 @@
-// This is a subset of the dataset published by Marvin Wendt 
+// This is a subset of the dataset published by Marvin Wendt
 // https://gist.github.com/MarvinJWendt/2f4f4154b8ae218600eb091a5706b5f4
 export default [
   'aalen',
