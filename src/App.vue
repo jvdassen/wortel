@@ -12,7 +12,10 @@
       </div>
       <div v-for="index in (remaining + 1)" :key="index" class="guessplaceholder"></div>
     </div>
-    <div class="info">{{ info }}</div>
+    <div class="info">
+      <span v-if="remaining === 0">Lösung: {{this.solution}}</span>
+      <span v-else>{{ info }}</span>
+    </div>
     <div class="input">
       <input type="text" v-model="newguess" :disabled="remaining === 0 || won">
       <button @click="check">OK</button>
