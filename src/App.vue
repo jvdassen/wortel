@@ -10,7 +10,23 @@
           <span v-if="letter.m === 'n'" class="letter none">{{letter.l}}</span>
         </div>
       </div>
-      <div v-for="index in (remaining + 1)" :key="index" class="guessplaceholder"></div>
+      <div v-for="index in remaining" :key="index" class="guess placeholder">
+       <div class="word">
+         <span class="letter">?</span>
+       </div>
+       <div class="word">
+         <span class="letter">?</span>
+       </div>
+       <div class="word">
+         <span class="letter">?</span>
+       </div>
+       <div class="word">
+         <span class="letter">?</span>
+       </div>
+       <div class="word">
+         <span class="letter">?</span>
+       </div>
+      </div>
     </div>
     <div class="info">
       <span v-if="remaining === 0">Lösung: {{this.solution}}</span>
@@ -31,30 +47,16 @@ const randomnr = Math.random() * 1e17
 const randomIndex = randomnr % wordlist.length
 const randomWord = wordlist[randomIndex]
 
+console.log('No cheating! :-)')
 console.log(`Random word is ${randomWord}`)
 
 var checklist = wordlistExtended.concat(wordlist)
 
-//  const wordlist = [
-//    'helme',
-//    'tests',
-//    'angel',
-//    'angst',
-//    'nagst'
-//  ]
-
 export default {
   name: 'App',
   data: function () {
-    // Sol: Nacht
-    // Try: Angst
     return {
       guesses: [
-        // [{ l: 'n', m: 'p' }, { l: 'a', m: 'p', id: '2' }, { l: 'c', m: 'n' }, { l: 'h', m: 'n' }, { l: 't', m: 'f' }],
-        // [{ l: 'a', m: 'f' }, { l: 'n', m: 'f', id: '2' }, { l: 'e', m: 'n' }, { l: 'g', m: 'p' }, { l: 't', m: 'f' }],
-        // [{ l: 'a', m: 'f' }, { l: 'n', m: 'f', id: '2' }, { l: 'g', m: 'f' }, { l: 'e', m: 'n' }, { l: 't', m: 'f' }]
-        //        [{ l: 'a', m: 'f' }, { l: 'n', m: 'f', id: '2' }, { l: 'g', m: 'f' }, { l: 'l', m: 'n' }, { l: 't', m: 'f' }]
-        //        [{ l: 'a', m: 'f' }, { l: 'n', m: 'f', id: '2' }, { l: 'g', m: 'f' }, { l: 's', m: 'f' }, { l: 't', m: 'f' }]
       ],
       solution: randomWord,
       newguess: '',
@@ -67,6 +69,10 @@ export default {
       this.info = ''
       if (this.newguess.length < 5) {
         this.info = 'Dein Wort ist zu kurz :-('
+        return
+      }
+      if (this.newguess.length > 5) {
+        this.info = 'Dein Wort ist zu lang :-('
         return
       }
       if (checklist.findIndex(w => w.toLowerCase() === this.newguess.toLowerCase()) < 0) {
@@ -100,6 +106,8 @@ export default {
       if (won) {
         this.info = 'Well done!🥕'
         this.won = won
+      } else {
+        this.info = 'Fast :-)'
       }
 
       this.guesses.push(checkResult)
@@ -134,7 +142,7 @@ export default {
   background-color: #001524;
 }
 .letter {
-  font-size: 2em;
+  font-size: 1.5em;
   color: #fdfffc;
 }
 .word {
@@ -155,14 +163,15 @@ export default {
   border-right: none;
   border-top: none;
 }
+.word:last-of-type .letter {
+  border-right: solid 1px #fdfffc;
+}
 .guess:first-of-type .letter {
   border-top: solid 1px #fdfffc;
 }
 .guesses {
   text-align: center;
-}
-.guessplaceholder {
-  height: 4em;
+  margin-bottom: 1em;
 }
 .input {
   margin: auto;
@@ -172,7 +181,7 @@ export default {
 .input input {
   flex-grow: 1;
   margin-right: 2px;
-  font-size: 2em;
+  font-size: 1.5em;
   flex-grow: 1;
   text-transform: uppercase;
   border: none;
@@ -211,7 +220,7 @@ html, body {
 }
 .info {
   text-align: center;
-  font-size: 1.5em;
+  font-size: 1em;
   padding: 0.5em;
   font-family: Helvetica;
 }
