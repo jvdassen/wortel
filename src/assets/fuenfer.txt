@@ -122,7 +122,6 @@ Grund
 Dauer
 Kunst
 Thema
-Größe
 Kreis
 Kluft
 Silbe
@@ -141,7 +140,6 @@ Reise
 Reihe
 genau
 Ärger
-außer
 Samen
 Pause
 wuchs
