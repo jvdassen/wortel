@@ -5,9 +5,9 @@
     <div class="guesses">
       <div v-for="guess in guesses" :key="guess.id" class="guess">
         <div v-for="letter in guess.guesses" v-bind:key="letter.id" class="word">
-          <span v-if="letter.m === 'f'" class="letter full">{{letter.l}}</span>
-          <span v-if="letter.m === 'p'" class="letter partial">{{letter.l}}</span>
-          <span v-if="letter.m === 'n'" class="letter none">{{letter.l}}</span>
+          <span v-if="letter.match === 'f'" class="letter full">{{letter.c}}</span>
+          <span v-if="letter.match === 'p'" class="letter partial">{{letter.c}}</span>
+          <span v-if="letter.match === 'n'" class="letter none">{{letter.c}}</span>
         </div>
       </div>
       <div v-for="index in remaining" :key="index" class="guess placeholder">
@@ -79,30 +79,47 @@ export default {
         this.info = 'Dein Wort ist leider nicht im Korpus'
         return
       }
+
+      window.app = this
+      var s = this.solution.toLowerCase().split('')
+
+      var g = this.newguess.toLowerCase().split('')
+
+      var inpm = s.map(c => {
+        return { c: c, p: null }
+      })
+
+      var guessm = g.map((gc, i) => {
+        var match = inpm[i].c === gc
+        if (match) {
+          inpm[i].p = i
+        }
+        return {
+          c: gc,
+          match: match ? 'f' : 'n'
+        }
+      })
+
+      var guessp = guessm.map((gc, i) => {
+        if (gc.match === 'f') {
+          return gc
+        }
+        for (var inp of inpm) {
+          if (inp.c === gc.c && inp.p === null) {
+            inp.p = i
+            gc.match = 'p'
+            return gc
+          }
+        }
+        return gc
+      })
+
       var checkResult = {
         id: Math.random() * 1e17,
-        guesses: this.newguess.toLowerCase().split('').map(checkWord.bind(this))
+        guesses: guessp
       }
-      function checkWord (character, index) {
-        var result = {
-          l: character,
-          m: 'n',
-          id: '' + Math.random() * 1e17
-        }
-        var indexOf = this.solution.toLowerCase().indexOf(character)
-        window.app = this
-        var partialMatch = indexOf >= 0
-        if (partialMatch) {
-          result.m = 'p'
-        }
-        var solutionCharAtThisPosition = this.solution.toLowerCase()[index]
-        var fullMatch = solutionCharAtThisPosition === character
-        if (fullMatch) {
-          result.m = 'f'
-        }
-        return result
-      }
-      var won = checkResult.guesses.every(character => character.m === 'f')
+
+      var won = checkResult.guesses.every(character => character.match === 'f')
       if (won) {
         this.info = 'Well done!🥕'
         this.won = won
@@ -116,7 +133,7 @@ export default {
   },
   computed: {
     remaining: function () {
-      return 5 - this.guesses.length
+      return 6 - this.guesses.length
     }
   },
   components: {
