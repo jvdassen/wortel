@@ -36,26 +36,27 @@
       <input type="text" v-model="newguess" :disabled="remaining === 0 || won">
       <button @click="check">OK</button>
     </div>
-    <div class="fix">Für A. :-)</div>
+    <div class="fix">Korpus: {{corpl}} Wörter</div>
   </div>
 </template>
 
 <script>
-import wordlist from './fuenfer.js'
-import wordlistExtended from './fuenfer-ext.js'
+import wordlistExtended from './extended.json'
 const randomnr = Math.random() * 1e17
-const randomIndex = randomnr % wordlist.length
-const randomWord = wordlist[randomIndex]
+const randomIndex = randomnr % wordlistExtended.length
+const randomWord = wordlistExtended[randomIndex]
+const corplen = wordlistExtended.length
 
 console.log('No cheating! :-)')
 console.log(`Random word is ${randomWord}`)
 
-var checklist = wordlistExtended.concat(wordlist)
+var checklist = wordlistExtended
 
 export default {
   name: 'App',
   data: function () {
     return {
+      corpl: corplen,
       guesses: [
       ],
       solution: randomWord,
